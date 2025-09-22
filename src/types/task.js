@@ -3,7 +3,7 @@ const User = {
     name: String
 }
 
-export const Task = {
+const Task = {
     id: String,
     title: String,
     desc: String,
@@ -11,3 +11,5 @@ export const Task = {
     status: "TODO" | "IN_PROGRESS" | "DONE",
     createdAt: String,
 }
+
+export default Task;

@@ -1,50 +1,78 @@
+import { useDrag } from "react-dnd";
+
 const TaskCard = ({ task, onStatusChange, availableStatuses }) => {
+
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: "object",
+    item: {id:  task.id },
+    end: (item, monitor) => {
+      const dropResult = monitor.getDropResult()
+      if (item && dropResult) {
+        onStatusChange(item.id, dropResult.columnId);
+        // todo:
+        // do api call and change the task in backend as well
+      }
+    },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+      handlerId: monitor.getHandlerId(),
+    }),
+  }))
+
+   const opacity = isDragging ? 0.4 : 1
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric',
-      year: 'numeric' 
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     });
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'TODO':
-        return 'bg-red-500';
-      case 'IN_PROGRESS':
-        return 'bg-yellow-500';
-      case 'DONE':
-        return 'bg-green-500';
+      case "TODO":
+        return "bg-red-500";
+      case "IN_PROGRESS":
+        return "bg-yellow-500";
+      case "DONE":
+        return "bg-green-500";
       default:
-        return 'bg-gray-500';
+        return "bg-gray-500";
     }
   };
 
   const getStatusText = (status) => {
     switch (status) {
-      case 'TODO':
-        return 'To Do';
-      case 'IN_PROGRESS':
-        return 'In Progress';
-      case 'DONE':
-        return 'Done';
+      case "TODO":
+        return "To Do";
+      case "IN_PROGRESS":
+        return "In Progress";
+      case "DONE":
+        return "Done";
       default:
         return status;
     }
   };
 
   return (
-    <div className="bg-gray-900 rounded-lg p-4 shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 border border-gray-700 hover:border-gray-600">
+    <div ref={drag} 
+    className="bg-gray-900 rounded-lg p-4 shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 border border-gray-700 hover:border-gray-600"
+    style={{opacity}}
+    >
       {/* Task Header */}
       <div className="flex items-start justify-between mb-3">
         <h3 className="text-white font-semibold text-sm leading-tight flex-1 pr-2">
           {task.title}
         </h3>
         <div className="relative group">
-          <div className={`${getStatusColor(task.status)} w-3 h-3 rounded-full flex-shrink-0 mt-1 cursor-pointer`} 
-               title={getStatusText(task.status)}>
-          </div>
+          <div
+            className={`${getStatusColor(
+              task.status
+            )} w-3 h-3 rounded-full flex-shrink-0 mt-1 cursor-pointer`}
+            title={getStatusText(task.status)}
+          ></div>
           {/* Status Change Dropdown */}
           <div className="absolute right-0 top-6 hidden group-hover:block bg-gray-800 border border-gray-700 rounded-md shadow-lg z-10 min-w-32">
             {availableStatuses.map((status) => (
@@ -52,10 +80,14 @@ const TaskCard = ({ task, onStatusChange, availableStatuses }) => {
                 key={status}
                 onClick={() => onStatusChange(task.id, status)}
                 className={`block w-full text-left px-3 py-2 text-xs hover:bg-gray-700 first:rounded-t-md last:rounded-b-md ${
-                  task.status === status ? 'bg-gray-700' : ''
+                  task.status === status ? "bg-gray-700" : ""
                 }`}
               >
-                <span className={`inline-block w-2 h-2 rounded-full mr-2 ${getStatusColor(status)}`}></span>
+                <span
+                  className={`inline-block w-2 h-2 rounded-full mr-2 ${getStatusColor(
+                    status
+                  )}`}
+                ></span>
                 {getStatusText(status)}
               </button>
             ))}
@@ -64,9 +96,7 @@ const TaskCard = ({ task, onStatusChange, availableStatuses }) => {
       </div>
 
       {/* Task Description */}
-      <p className="text-gray-400 text-xs mb-4 leading-relaxed">
-        {task.desc}
-      </p>
+      <p className="text-gray-400 text-xs mb-4 leading-relaxed">{task.desc}</p>
 
       {/* Task Footer */}
       <div className="flex items-center justify-between">
